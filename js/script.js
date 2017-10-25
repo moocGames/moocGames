@@ -11,7 +11,7 @@ var flock=[]; //contains all character objects
 		constructor(name,path,coX,coY,maxX,maxY)
 		{
 			this.name=name; 
-			this.counter=0;this.sFlag=false;this.cFlag=false;//this counter and flags help to control comeHere() and salto() functions
+			this.counter=0;this.jFlag=false;this.sFlag=false;this.cFlag=false;//this counter and flags help to control comeHere() and salto() functions
 			this.path=path;
 			this.CharX=coX;
 			this.CharY=coY;
@@ -114,11 +114,13 @@ function init() {
         // space
 		flock[currentChar].acc=4;flock[currentChar].stepAudio.playbackRate = 4.0;flock[currentChar].stepAudio.play();
 	   } else if (evt.keyCode === 17) {
-        // space
+        // ctrl
 		flock[currentChar].imageChar.src=characters[currentChar]+"/"+characters[currentChar]+'2.png';
        flock[currentChar].imageChar.onload = function() {}
 		}  else if (evt.keyCode === 18) {
 			flock[currentChar].sFlag=true;flock[currentChar].jupiAudio.play();
+		}else if (evt.keyCode === 74) {
+			flock[currentChar].jFlag=true;flock[currentChar].jupiAudio.play();
 		}
 }
    
@@ -142,7 +144,7 @@ function init() {
 		flock[currentChar].acc=1;flock[currentChar].stepAudio.playbackRate = 1.0;
 	   }
 	   else if (evt.keyCode === 17) {
-        // space
+        // ctrl
 		flock[currentChar].imageChar.src=characters[currentChar]+"/"+characters[currentChar]+'.png';
        flock[currentChar].imageChar.onload = function() {}
 		   } 
@@ -168,6 +170,11 @@ function animationLoop() {
 			{
 				salto(flock[currentChar]);
 			}
+		else if(flock[currentChar].jFlag)
+			{
+				jump(flock[currentChar]);
+			}
+
 			
 		if(flock[currentChar].cFlag)
 			{
@@ -296,5 +303,28 @@ function animationLoop() {
 			CharObj.counter=0;CharObj.cFlag=false;
 		}
 	}
+   
+   
+   //simplified salto function, the object only goes up in 18 frames and then down in another 18 frames
+   function jump(CharObj)
+   {
+		
+		CharObj.counter++;
+		if(CharObj.counter<=18)
+		{
+			CharObj.vv=-1;
+		}
+		else if(CharObj.counter<=36)
+		{
+			CharObj.vv=1;
+		}
+		else
+		{
+			CharObj.jFlag=false;CharObj.counter=0; flagL=false; flagR=false;flagU=false;flagD=false;//function ends after 36 frames
+		}
+		CharObj.go();
+	}
+   
+   
    
    
