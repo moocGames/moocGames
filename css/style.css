@@ -1,0 +1,38 @@
+canvas
+{ 
+    border:1px solid black;
+	background-image: url("background.png");
+    background-color: #cccccc;
+}
+audio 
+{ 
+   display:none;
+}
+button
+{
+	height: 50px; width: 150px; font-size: 25px;
+}
+#main
+{
+	margin: auto;
+}
+#nav
+{
+	width: 900px;
+	min-height: 50px;
+	background: #ADD;
+	border: 1px solid black;
+}
+
+.selec
+{
+	background-color: #0F0;
+	color: #009;
+}
+.unsel
+{
+		
+	background-color: #555;
+	color: #000;
+}
+	
