@@ -326,5 +326,7 @@ function animationLoop() {
 	}
    
    
+   function foo()
+   {}
    
    
