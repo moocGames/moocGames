@@ -5,6 +5,7 @@ var currentChar=0; //the character that is now selected to be controlled by keyb
 var maxWidth=document.getElementById('myCanvas').width, maxHeight=document.getElementById('myCanvas').height;
 	
 var flock=[]; //contains all character objects
+var swarm=[]; //contains all randomly flying objects
 
 //define class of moving objects 
    class Character {
@@ -55,6 +56,74 @@ var flock=[]; //contains all character objects
 	
    
    }
+   
+class Butterfly
+ {
+		constructor(name,path,coX,coY,maxX,maxY,mRange)
+		{
+			this.name=name; 
+			this.counter=0;this.rFlag;//this counter and flags help to control randomMove function
+			this.path=path;
+			this.objX=coX; //object X property
+			this.objY=coY; //object Y property
+			this.Angle=0;this.scaleX=0.2;this.scaleY=0.2;this.vh=0;this.vv=0;
+			this.maxX=maxX;
+			this.maxY=maxY;
+			this.objImage=new Image();
+			this.objImage.src=path+".png";
+			this.objImage.onload= function() {}; //wait until an image is loaded
+			this.newX=0; this.newY=0; // auxiliary coordinate needed for randomMove function
+			this.mRange=mRange;
+			this.offsetX=coX;this.offsetY=coY; //offset remembers initial coordinates 
+			this.gone=false; //if this flag becomes true, the object went to the canvas border and could be destroyed
+		}
+		
+		
+		go()
+		{
+			// move left - right
+			if((this.objX<this.maxX||this.vh<0)&&(this.objX>0||this.vh>0))
+			{
+				this.objX +=this.vh;
+			}	
+			else
+			{
+				this.gone=true;//stop displaying the object in animationLoop when the object arrives at maxX
+			}
+			//up/down
+			if((this.objY>0||this.vv>0)&&(this.objY<this.maxY||this.vv<0)) 
+			{
+				this.objY +=this.vv;
+			}
+			
+		}
+		
+		randomMove()
+		{
+			//get the new random coordinates only if the move cycle is finished (counter = 0 after restart)
+			if(this.counter===0)
+			{
+				this.newX=Math.floor((Math.random() * this.mRange))+this.offsetX;
+				this.newY=Math.floor((Math.random() * this.mRange))/2+this.offsetY;
+				this.vh=(this.newX-this.objX)/36;
+				this.vv=(this.newY-this.objY)/36; //calculate vertical speed based on start and and point coordinates
+			}
+			else if(this.counter===36)
+			{
+				this.counter=-1; //restart counter
+				this.vh=0; this.vv=0;//reset previous speed vector
+				this.offsetX+=10; //after each cycle, the object moves a little bit to the right
+			}
+			else
+			{
+				this.go(); //object moves according to vh and vv values
+				//console.log("vh: "+this.vh+", vv: "+this.vv);
+			}
+			
+			this.counter++;
+		}
+   
+   }
 
 for(var i=0;i<characters.length;i++)
    {
@@ -65,7 +134,14 @@ for(var i=0;i<characters.length;i++)
 		document.body.appendChild(flock[i].jupiAudio);
    }
    
-
+for(var i=0;i<3;i++)
+   {
+		var path="Butterfly/Butterfly"+i;
+		swarm[i]=new Butterfly("butterfly"+i,path,400+i*20,200,maxWidth,maxHeight,50);
+		
+   }
+   
+//var bf1=new Butterfly("bf1","Butterfly/Butterfly",600,200,maxWidth,maxHeight,50);
 
 
 function init() {
@@ -162,6 +238,8 @@ function animationLoop() {
 	{
 		drawCharacter(flock[i]);
 	}
+	
+	
       // 3 Move
 
 		moveChar(flock[currentChar]);
@@ -180,7 +258,18 @@ function animationLoop() {
 			{
 				comeHere(flock[currentChar],405);
 			}
-	
+			
+		// 3* draw and move swarm
+		
+		for(var i=0;i<swarm.length;i++)
+		{
+			if(!swarm[i].gone)
+			{
+				drawButterfly(swarm[i]);
+				swarm[i].randomMove();//draw and move only until gone flag is false
+				//add function that removes Butterfly object when it is gone eg. using DOM removeChild
+			}
+		}
 
       // call again mainloop after 16.6 ms (60 frames/s)
       requestId = requestAnimationFrame(animationLoop);
@@ -324,6 +413,26 @@ function animationLoop() {
 		}
 		CharObj.go();
 	}
+   
+   
+   function drawButterfly(bufObj) {   
+     // GOOD PRACTICE : SAVE CONTEXT AND RESTORE IT AT THE END
+     ctx.save();
+     
+     // Moves the coordinate system so that the monster is drawn
+     // at position (x, y)
+     ctx.translate(bufObj.objX,bufObj.objY);
+     ctx.rotate(bufObj.Angle);
+	 ctx.scale(bufObj.scaleX,bufObj.scaleY);
+	 
+	ctx.translate(-150, -100);//must be for setting rotation centre
+	
+	 //insert image
+	 ctx.drawImage(bufObj.objImage, 80, 10, 150, 150);
+     
+     // GOOD PRACTICE !
+     ctx.restore();
+   }
    
    
    function foo()
